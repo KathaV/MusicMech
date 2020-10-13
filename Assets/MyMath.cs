@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
+//using System.Diagnostics;
 
 public static class MyMath
 {
@@ -66,16 +68,22 @@ public static class MyMath
     /// </summary>
     public static T Median<T>(this IList<T> list) where T : IComparable<T>
     {
+        list = list.Distinct().ToList();
+        Debug.Log("Median element:" + ((list.Count - 1) / 2));
         return list.NthOrderStatistic((list.Count - 1) / 2);
     }
 
     public static T FirstQuartile<T>(this IList<T> list) where T : IComparable<T>
     {
+        list = list.Distinct().ToList();
+        Debug.Log("First Quartile element:" + ((list.Count - 1) / 4));
         return list.NthOrderStatistic((list.Count - 1) / 4);
     }
 
     public static T ThirdQuartile<T>(this IList<T> list) where T : IComparable<T>
     {
+        list = list.Distinct().ToList();
+        Debug.Log("Third Quartile element:" + (3*(list.Count - 1) / 4));
         return list.NthOrderStatistic(3*(list.Count - 1) / 4);
     }
     /*

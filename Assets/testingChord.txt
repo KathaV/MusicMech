@@ -1,0 +1,15 @@
+MTrk
+0 Meta TrkName "DSK AkoustiK GuitarZ"
+0 Tempo 923076
+0 On ch=1 n=72 v=64
+128 Off ch=1 n=72 v=64
+128 On ch=1 n=76 v=64
+256 Off ch=1 n=76 v=64
+256 On ch=1 n=83 v=64
+384 Off ch=1 n=83 v=64
+384 On ch=1 n=79 v=64
+384 On ch=1 n=76 v=64
+512 Off ch=1 n=79 v=64
+512 Off ch=1 n=76 v=64
+512 Meta TrkEnd
+TrkEnd

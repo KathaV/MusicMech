@@ -47,11 +47,6 @@ MonoBehaviour:
   musicSource: {fileID: 5130106313901624297}
   songBpm: 65
   beatsPerLoop: 16
-  beatTrackRhythm:
-  - {fileID: 6612035016912384578, guid: b242eabf723d8fd4fb1ce3762bf26f54, type: 3}
-  - {fileID: 6612035016912384578, guid: b242eabf723d8fd4fb1ce3762bf26f54, type: 3}
-  - {fileID: 6612035016912384578, guid: b242eabf723d8fd4fb1ce3762bf26f54, type: 3}
-  - {fileID: 6612035016912384578, guid: b242eabf723d8fd4fb1ce3762bf26f54, type: 3}
 --- !u!82 &5130106313901624297
 AudioSource:
   m_ObjectHideFlags: 0
@@ -66,7 +61,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

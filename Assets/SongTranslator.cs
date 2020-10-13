@@ -53,7 +53,7 @@ public class SongTranslator : MonoBehaviour
             try
             {
                 timestamp = Int32.Parse(line.Split(' ')[TIMESTAMP]);
-                Console.WriteLine(timestamp);
+                //Console.WriteLine(timestamp);
             }
             catch (FormatException)
             {
@@ -65,7 +65,7 @@ public class SongTranslator : MonoBehaviour
             try
             {
                 noteVal = Int32.Parse(noteParser(line.Split(' ')[NOTE]));
-                print("note: " + noteVal);
+                //print("note: " + noteVal);
             }
             catch (FormatException)
             {
@@ -124,7 +124,7 @@ public class SongTranslator : MonoBehaviour
 
     void toInput()
     {
-        //print("Medians: "+ MyMath.FirstQuartile(noteVals)+", "+MyMath.Median(noteVals)+", " + MyMath.ThirdQuartile(noteVals));
+        print("Medians: "+ MyMath.FirstQuartile(noteVals)+", "+MyMath.Median(noteVals)+", " + MyMath.ThirdQuartile(noteVals));
         int firstQuartile = MyMath.FirstQuartile(noteVals);
         int median = MyMath.Median(noteVals);
         int thirdQuartile = MyMath.ThirdQuartile(noteVals);
@@ -151,27 +151,58 @@ public class SongTranslator : MonoBehaviour
         }
     }
 
+    void toInputSimple()
+    {
+        {
+            //print("Medians: "+ MyMath.FirstQuartile(noteVals)+", "+MyMath.Median(noteVals)+", " + MyMath.ThirdQuartile(noteVals));
+            int firstQuartile = MyMath.FirstQuartile(noteVals);
+            int median = MyMath.Median(noteVals);
+            int thirdQuartile = MyMath.ThirdQuartile(noteVals);
+
+
+            foreach (Note note in notes)
+            {
+                if (note.getVal() <= firstQuartile)
+                {
+                    note.setInput("1");
+                }
+                else if (note.getVal() <= median)
+                {
+                    note.setInput("2");
+                }
+                else if (note.getVal() <= thirdQuartile)
+                {
+                    note.setInput("3");
+                }
+                else
+                {
+                    note.setInput("4");
+                }
+            }
+        }
+    }
+
     public void updateCurrNotes(float loopPosition)
     {
-        print("UPDATE");
+        //print("UPDATE");
         //print("nextToRemove:" + nextToRemove + ", nextToPlay: " + nextNote +"timestamp:" +loopPosition);
         //currNotes = new List<Note>();
         int i=-1;
-        checkCurrNotes();
+        //checkCurrNotes();
 
-        print("pre-nextToPlay: " + nextNote + ", count"+ notes.Count);
+//        print("pre-nextToPlay: " + nextNote + ", count"+ notes.Count);
         //for (i = 0; i < notes.Count; i++)
        
             for (i = nextNote; i < notes.Count && notes[i].getStartInBeats() <= loopPosition; i++)
             {
-                print("added:" + notes[i]);
+                //print("added:" + notes[i]);
                 currNotes.Add(notes[i]);
 
                 nextNote = i + 1;
             }
         
-        print("nextToPlay: " + nextNote);
-        checkCurrNotes();
+        //print("nextToPlay: " + nextNote);
+        //checkCurrNotes();
 
         
             
@@ -201,7 +232,7 @@ public class SongTranslator : MonoBehaviour
 
     public void removeNotes(float timestamp)
     {
-        print("REMOVE");
+       // print("REMOVE");
         //print("nextToRemove:" + nextToRemove + ", nextToPlay: " + nextNote);
         List<Note> temp = new List<Note>();
         foreach(Note note in currNotes)
@@ -209,7 +240,7 @@ public class SongTranslator : MonoBehaviour
             if (note.getEndInBeats() > timestamp)
             {
                 temp.Add(note);
-                print("time:"+timestamp+", "+note);
+                //print("time:"+timestamp+", "+note);
 
                 
             }
@@ -225,9 +256,9 @@ public class SongTranslator : MonoBehaviour
     {
         currNotes = new List<Note>();
         nextNote = 0;
-        print("LOOP");
-        print("loop check: ");
-        checkCurrNotes();
+        //print("LOOP");
+        //print("loop check: ");
+        //checkCurrNotes();
     }
 
 }

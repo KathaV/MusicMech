@@ -114,21 +114,19 @@ public class Conductor : MonoBehaviour
         if (songPositionInBeats >= (completedLoops + 1) * beatsPerLoop)
         {
            completedLoops++;
-            print("checkp 0");
+            
             songNotes.newLoop();
             musicSource.Play();
-            print("checkp 2");
         }
 
         loopPositionInBeats = songPositionInBeats - completedLoops * beatsPerLoop;
         loopPositionInAnalog = loopPositionInBeats / beatsPerLoop;
 
-        print("loop beats:"+loopPositionInBeats);
             songNotes.removeNotes(loopPositionInBeats);
             songNotes.updateCurrNotes(loopPositionInBeats);
             List<Note> currNotes = songNotes.getCurrNotes();
         //TODO
-        checkCurrNotes(currNotes);
+        //checkCurrNotes(currNotes);
             resetInputBool();
             checkInput(currNotes);
             renderInput();
@@ -149,7 +147,7 @@ public class Conductor : MonoBehaviour
         foreach (Note note in currNotes)
         {
 
-            print("checkInput:"+note);
+            //print("checkInput:"+note);
             setInputBool(note.getInput());
 
             /*if (completedLoops>1 && !Input.GetKey(note.getInput()))
