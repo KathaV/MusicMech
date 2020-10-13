@@ -59,6 +59,8 @@ public class Conductor : MonoBehaviour
     private bool button3IsPlaying;
     private bool button4IsPlaying;
 
+    private bool isTeaching;
+
     private GameObject button1;
     private GameObject button2;
     private GameObject button3;
@@ -94,44 +96,65 @@ public class Conductor : MonoBehaviour
         wrongSource = this.GetComponent<AudioSource>();
         //Calculate the number of seconds in each beat
         secPerBeat = 60f / songBpm;
-
-          //Record the time when the music starts
-        dspSongTime = (float)AudioSettings.dspTime;
-
-          //Start the music
-        musicSource.Play();
+        isTeaching = true;
+        dspSongTime = startMusic(musicSource);
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-          //determine how many seconds since the song started
+        List<Note> currNotes = playMusic(dspSongTime, songNotes, musicSource);
+      
+
+        teachPattern(currNotes);
+        
+    }
+    
+    void teachPattern(List<Note> currNotes)
+    {
+        resetInputBool();
+        checkInput(currNotes);
+        renderInput();
+    }
+
+    float startMusic(AudioSource audioSource)
+    {
+        //Record the time when the music starts
+        dspSongTime = (float)AudioSettings.dspTime;
+
+        //Start the music
+        audioSource.Play();
+        return dspSongTime;
+    }
+
+    List<Note> playMusic(float dspSongTime, SongTranslator songNotes, AudioSource audioSource)
+    {
+
+        //determine how many seconds since the song started
         songPosition = (float)(AudioSettings.dspTime - dspSongTime);
 
-          //determine how many beats since the song started
+        //determine how many beats since the song started
         songPositionInBeats = songPosition / secPerBeat;
 
         if (songPositionInBeats >= (completedLoops + 1) * beatsPerLoop)
         {
-           completedLoops++;
-            
-            songNotes.newLoop();
-            musicSource.Play();
+            completedLoops++;
+            loopMusic(audioSource, songNotes);
         }
 
         loopPositionInBeats = songPositionInBeats - completedLoops * beatsPerLoop;
         loopPositionInAnalog = loopPositionInBeats / beatsPerLoop;
 
-            songNotes.removeNotes(loopPositionInBeats);
-            songNotes.updateCurrNotes(loopPositionInBeats);
-            List<Note> currNotes = songNotes.getCurrNotes();
-        //TODO
-        //checkCurrNotes(currNotes);
-            resetInputBool();
-            checkInput(currNotes);
-            renderInput();
-        
-        
+        songNotes.removeNotes(loopPositionInBeats);
+        songNotes.updateCurrNotes(loopPositionInBeats);
+        List<Note> currNotes = songNotes.getCurrNotes();
+        return currNotes;
+    }
+    void loopMusic(AudioSource audioSource, SongTranslator songNotes)
+    {
+        songNotes.newLoop();
+        audioSource.Play();
     }
     void checkCurrNotes(List<Note> currNotes)
     {
