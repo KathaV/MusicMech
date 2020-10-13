@@ -9,12 +9,14 @@ public class Song : MonoBehaviour
   public AudioSource musicSource;
   public int songBpm;
   public int beatsPerLoop;
+    public int completedLoops;
 
 
 
   void Start()
   {
     musicSource = this.GetComponent<AudioSource>();
+        completedLoops = 0;
   }
 
   public int getBpm()
@@ -27,7 +29,19 @@ public class Song : MonoBehaviour
     return beatsPerLoop;
   }
 
+  public int getCurrLoop()
+  {
+        return completedLoops;
+  }
 
+  public void incrementLoop()
+  {
+        completedLoops++;
+  }
+  public void resetLoop()
+    {
+        completedLoops = 0;
+    }
 
  
 }

@@ -15,34 +15,34 @@ public class Conductor : MonoBehaviour
 
   //Song beats per minute
   //This is determined by the song you're trying to sync up to
-  public float songBpm;
+  //public float songBpm;
 
   //The number of seconds for each song beat
-  public float secPerBeat;
+  //public float secPerBeat;
 
   //Current song position, in seconds
-  public float songPosition;
+  //public float songPosition;
 
   //Current song position, in beats
-  public float songPositionInBeats;
+  //public float songPositionInBeats;
 
   //How many seconds have passed since the song started
-  public float dspSongTime;
+  //public float dspSongTime;
 
   //an AudioSource attached to this GameObject that will play the music.
-  public AudioSource musicSource;
+  //public AudioSource musicSource;
     public AudioSource wrongSource;
     //the number of beats in each loop
-    public float beatsPerLoop;
+    //public float beatsPerLoop;
 
   //the total number of loops completed since the looping clip first started
-  public int completedLoops = 0;
+  //public int completedLoops = 0;
 
   //The current position of the song within the loop in beats.
-  public float loopPositionInBeats;
+  //public float loopPositionInBeats;
 
   //The current relative position of the song within the loop measured between 0 and 1.
-  public float loopPositionInAnalog;
+  //public float loopPositionInAnalog;
 
   //Conductor instance
   public static Conductor instance;
@@ -60,16 +60,19 @@ public class Conductor : MonoBehaviour
     private bool button4IsPlaying;
 
     private bool isTeaching;
+    private bool isPlaying;
 
     private GameObject button1;
     private GameObject button2;
     private GameObject button3;
     private GameObject button4;
     private GameObject canvas;
-    
+
+    private float dspSongTime;
+    private int maxLoops = 2;
 
 
-  void Awake()
+    void Awake()
   {
     instance = this;
   }
@@ -86,29 +89,61 @@ public class Conductor : MonoBehaviour
         songNotes = GameObject.FindWithTag("SongTranslator").gameObject.GetComponent<SongTranslator>();
         canvas = GameObject.Find("Canvas");
         buttonColourer=canvas.gameObject.GetComponent<ButtonColourer>();
+
         song = GameObject.FindWithTag("Track");
         musician = GameObject.FindWithTag("Player");
-        songScript = song.gameObject.GetComponent<Song>();
-        songBpm = songScript.getBpm();
-        beatsPerLoop = songScript.getBeatsPerLoop();
+        //songScript = song.gameObject.GetComponent<Song>();
+        //songBpm = songScript.getBpm();
+        //beatsPerLoop = songScript.getBeatsPerLoop();
         //Load the AudioSource attached to the Conductor GameObject
-        musicSource = song.GetComponent<AudioSource>();
+        //musicSource = song.GetComponent<AudioSource>();
         wrongSource = this.GetComponent<AudioSource>();
         //Calculate the number of seconds in each beat
-        secPerBeat = 60f / songBpm;
-        isTeaching = true;
-        dspSongTime = startMusic(musicSource);
+        //secPerBeat = 60f / songBpm;
+        isTeaching = false;
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        List<Note> currNotes = playMusic(dspSongTime, songNotes, musicSource);
-      
+        //if start teaching (temporary key: space)
+        if (Input.GetKeyDown("space"))
+        {
+            isTeaching = true;
+            //start music
+            dspSongTime= startMusic(song);
+        }
 
-        teachPattern(currNotes);
+        //if teacher is teaching or musician is playing
+        if (isTeaching || isPlaying)
+        {
+            
+            List<Note> currNotes = playMusic(dspSongTime, songNotes, song, maxLoops);
+            if (isTeaching)
+            {
+
+                teachPattern(currNotes);
+            }
+            else if (isPlaying)
+            {
+                bool isValid = validateInput(musician);
+                if (!isValid)
+                {
+                    stopMusic(song);
+                    wrongSource.Play();
+                }
+            }
+        }
         
+        
+
+        
+    }
+
+    bool validateInput(GameObject musician)
+    {
+        return true;
     }
     
     void teachPattern(List<Note> currNotes)
@@ -118,33 +153,64 @@ public class Conductor : MonoBehaviour
         renderInput();
     }
 
+    void stopMusic(AudioSource audioSource)
+    {
+        audioSource.Stop();
+    }
+    void stopMusic(GameObject song)
+    {
+        Song songScript = song.gameObject.GetComponent<Song>();
+        AudioSource audioSource = songScript.GetComponent<AudioSource>();
+        audioSource.Stop();
+    }
+
     float startMusic(AudioSource audioSource)
     {
+
         //Record the time when the music starts
-        dspSongTime = (float)AudioSettings.dspTime;
+        float dspSongTime = (float)AudioSettings.dspTime;
 
         //Start the music
         audioSource.Play();
         return dspSongTime;
     }
 
-    List<Note> playMusic(float dspSongTime, SongTranslator songNotes, AudioSource audioSource)
+    float startMusic(GameObject song)
     {
+        Song songScript = song.gameObject.GetComponent<Song>();
+        AudioSource audioSource = songScript.GetComponent<AudioSource>();
+        //Record the time when the music starts
+        float dspSongTime = (float)AudioSettings.dspTime;
+        songScript.resetLoop();
+        //Start the music
+        audioSource.Play();
+        return dspSongTime;
+    }
+
+    List<Note> playMusic(float dspSongTime, SongTranslator songNotes, GameObject song, int maxLoops)
+    {
+        Song songScript = song.gameObject.GetComponent<Song>();
+        int songBpm = songScript.getBpm();
+        int beatsPerLoop = songScript.getBeatsPerLoop();
+        //Load the AudioSource attached to the Conductor GameObject
+        AudioSource audioSource = song.GetComponent<AudioSource>();
+        //Calculate the number of seconds in each beat
+        float secPerBeat = 60f / songBpm;
 
         //determine how many seconds since the song started
-        songPosition = (float)(AudioSettings.dspTime - dspSongTime);
+        float songPosition = (float)(AudioSettings.dspTime - dspSongTime);
 
         //determine how many beats since the song started
-        songPositionInBeats = songPosition / secPerBeat;
+        float songPositionInBeats = songPosition / secPerBeat;
 
-        if (songPositionInBeats >= (completedLoops + 1) * beatsPerLoop)
+        if (songPositionInBeats >= (songScript.getCurrLoop() + 1) * beatsPerLoop)
         {
-            completedLoops++;
+            songScript.incrementLoop();
             loopMusic(audioSource, songNotes);
         }
 
-        loopPositionInBeats = songPositionInBeats - completedLoops * beatsPerLoop;
-        loopPositionInAnalog = loopPositionInBeats / beatsPerLoop;
+        float loopPositionInBeats = songPositionInBeats - songScript.getCurrLoop() * beatsPerLoop;
+        float loopPositionInAnalog = loopPositionInBeats / beatsPerLoop;
 
         songNotes.removeNotes(loopPositionInBeats);
         songNotes.updateCurrNotes(loopPositionInBeats);
