@@ -118,11 +118,16 @@ public class Conductor : MonoBehaviour
         //if teacher is teaching or musician is playing
         if (isTeaching || isPlaying)
         {
-            
-            List<Note> currNotes = playMusic(dspSongTime, songNotes, song, maxLoops);
+            //teaching audio
+            List<Note> currNotes = playMusic(dspSongTime, songNotes, song);
+            Song songScript = song.gameObject.GetComponent<Song>();
+            if (songScript.getCurrLoop() >= maxLoops)
+            {
+                stopMusic(song);
+                isTeaching = false;
+            }
             if (isTeaching)
             {
-
                 teachPattern(currNotes);
             }
             else if (isPlaying)
@@ -133,6 +138,7 @@ public class Conductor : MonoBehaviour
                     stopMusic(song);
                     wrongSource.Play();
                 }
+
             }
         }
         
@@ -187,7 +193,7 @@ public class Conductor : MonoBehaviour
         return dspSongTime;
     }
 
-    List<Note> playMusic(float dspSongTime, SongTranslator songNotes, GameObject song, int maxLoops)
+    List<Note> playMusic(float dspSongTime, SongTranslator songNotes, GameObject song)
     {
         Song songScript = song.gameObject.GetComponent<Song>();
         int songBpm = songScript.getBpm();
@@ -208,7 +214,7 @@ public class Conductor : MonoBehaviour
             songScript.incrementLoop();
             loopMusic(audioSource, songNotes);
         }
-
+        
         float loopPositionInBeats = songPositionInBeats - songScript.getCurrLoop() * beatsPerLoop;
         float loopPositionInAnalog = loopPositionInBeats / beatsPerLoop;
 
